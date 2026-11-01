@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
+import { skipToken, useQuery } from '@apollo/client/react';
 
 const FIND_PERSON = gql`
-  query findPersonByName($nameToSearch: String!){
-    findPerson(name: $$nameToSearch) {
+  query findPersonByName($nameToSearch: String!) {
+    findPerson(name: $nameToSearch) {
       name
       phone
       id
@@ -13,7 +13,8 @@ const FIND_PERSON = gql`
         city
       }
     }
-  }`;
+  }
+`;
 
 const Person = ({ person, onClose }) => {
   return (
@@ -30,10 +31,11 @@ const Person = ({ person, onClose }) => {
 
 const Persons = ({ persons }) => {
   const [nameToSearch, setNameToSearch] = useState(null);
-  const result = useQuery(FIND_PERSON, {
-    variables: { nameToSearch },
-    skip: !nameToSearch,
-  });
+
+  const result = useQuery(
+    FIND_PERSON,
+    nameToSearch ? { variables: { nameToSearch } } : skipToken,
+  );
 
   if (nameToSearch && result.data) {
     return (
