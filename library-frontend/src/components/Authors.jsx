@@ -1,8 +1,25 @@
-const Authors = (props) => {
-  if (!props.show) {
-    return null
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/client/react';
+import { ALL_AUTHORS } from '../queries.js';
+
+const Authors = ({ setNotification, show }) => {
+  const { loading, data, error } = useQuery(ALL_AUTHORS);
+
+  useEffect(() => {
+    if (error) {
+      setNotification(error.message);
+    }
+  }, [error, setNotification]);
+
+  if (!show) {
+    return null;
   }
-  const authors = []
+
+  if (loading) return <div>loading...</div>;
+
+  if (error) return null;
+
+  const authors = data.allAuthors;
 
   return (
     <div>
@@ -24,7 +41,7 @@ const Authors = (props) => {
         </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
 
-export default Authors
+export default Authors;

@@ -1,14 +1,29 @@
-const Books = (props) => {
-  if (!props.show) {
-    return null
+import { useEffect } from 'react';
+import { useQuery } from '@apollo/client/react';
+import { ALL_BOOKS } from '../queries';
+
+const Books = ({ setNotification, show }) => {
+  const { loading, data, error } = useQuery(ALL_BOOKS);
+
+  useEffect(() => {
+    if (error) {
+      setNotification(error.message);
+    }
+  }, [error, setNotification]);
+
+  if (!show) {
+    return null;
   }
 
-  const books = []
+  if (loading) return <div>loading...</div>;
+
+  if (error) return null;
+
+  const books = data.allBooks;
 
   return (
     <div>
       <h2>books</h2>
-
       <table>
         <tbody>
           <tr>
@@ -16,17 +31,17 @@ const Books = (props) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((a) => (
-            <tr key={a.id}>
-              <td>{a.title}</td>
-              <td>{a.author}</td>
-              <td>{a.published}</td>
+          {books.map((b) => (
+            <tr key={b.id}>
+              <td>{b.title}</td>
+              <td>{b.author}</td>
+              <td>{b.published}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
 
-export default Books
+export default Books;

@@ -1,26 +1,30 @@
-import { useState } from 'react'
-import Authors from './components/Authors'
-import Books from './components/Books'
-import NewBook from './components/NewBook'
+import { useState } from 'react';
+import Authors from './components/Authors';
+import Books from './components/Books';
+import NewBook from './components/NewBook';
+import Notification from './components/Notification';
 
 const App = () => {
-  const [page, setPage] = useState('authors')
+  const [page, setPage] = useState('authors');
+  const [notification, setNotification] = useState('');
 
   return (
     <div>
-      <div>
+      <nav>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         <button onClick={() => setPage('add')}>add book</button>
-      </div>
+      </nav>
 
-      <Authors show={page === 'authors'} />
+      <Notification notification={notification} setNotification={setNotification} />
 
-      <Books show={page === 'books'} />
+      <Authors show={page === 'authors'} setNotification={setNotification} />
 
-      <NewBook show={page === 'add'} />
+      <Books show={page === 'books'} setNotification={setNotification} />
+
+      <NewBook show={page === 'add'} setNotification={setNotification} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
