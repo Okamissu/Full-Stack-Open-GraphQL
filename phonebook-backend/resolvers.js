@@ -8,7 +8,7 @@ const resolvers = {
   Query: {
     personCount: async () => Person.collection.countDocuments(),
     allPersons: async (root, args) => {
-      if (!ags.phone) {
+      if (!args.phone) {
         return Person.find({});
       }
 
