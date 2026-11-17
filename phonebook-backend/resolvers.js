@@ -127,6 +127,35 @@ const resolvers = {
 
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) };
     },
+
+    addAsFriends: async (root, args, { currentUser }) => {
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated', {
+          extensions: { code: 'UNAUTHENTICATED' },
+        });
+      }
+
+      const isNotFriendAlready = (person) =>
+        currentUser.friends.map((f) => f._id.toString()).includes(person._id.toString());
+
+      const person = await Person.findOne({ name: args.name });
+
+      if (!person) {
+        throw newGraphQLError('Person of such name not found', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+          },
+        });
+      }
+
+      if (isNotFriendAlready(person)) {
+        currentUser.friends = currentUser.friends.concat(person);
+      }
+
+      await currentUser.save();
+      return currentUser;
+    },
   },
 };
 
