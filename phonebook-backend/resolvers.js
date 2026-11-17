@@ -1,5 +1,8 @@
 const { GraphQLError } = require('graphql');
+const jwt = require('jsonwebtoken');
+
 const Person = require('./models/person');
+const User = require('./models/user');
 
 const resolvers = {
   Query: {
@@ -48,6 +51,7 @@ const resolvers = {
 
       return person;
     },
+
     editNumber: async (root, args) => {
       const person = await Person.findOne({ name: args.name });
 
@@ -70,6 +74,43 @@ const resolvers = {
       }
 
       return person;
+    },
+
+    createUser: async (root, args) => {
+      const user = new User({ username: args.username });
+
+      try {
+        await user.save();
+      } catch (error) {
+        throw new GraphQLError(`Creating the user failed: ${error.message}`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.username,
+            error,
+          },
+        });
+      }
+
+      return user;
+    },
+
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username });
+
+      if (!user || args.password !== 'secret') {
+        throw new GraphQLError('Wrong credentials', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+          },
+        });
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      };
+
+      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) };
     },
   },
 };
