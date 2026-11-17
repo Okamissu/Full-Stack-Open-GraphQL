@@ -1,73 +1,105 @@
-const { v4: uuid } = require('uuid');
+const { GraphQLError } = require('graphql');
 
-const { GraphQLError } = require('graphql/error');
+const Book = require('./models/book');
+const Author = require('./models/author');
 
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (root, args) => {
-      let result = [...books];
-
-      if (args.author) {
-        result = result.filter((b) => b.author === args.author);
-      }
-
-      if (args.genre) {
-        result = result.filter((b) => b.genres.includes(args.genre));
-      }
-
-      return result;
+    bookCount: async () => Book.countDocuments(),
+    authorCount: async () => Author.countDocuments(),
+    allBooks: async (root, args) => {
+      // .populate('author') ensures GraphQL can resolve book.author.name
+      return Book.find({}).populate('author');
     },
-    allAuthors: () => authors,
+    allAuthors: async () => Author.find({}),
   },
 
   Author: {
-    bookCount: (root) => books.filter((book) => book.author === root.name).length,
+    bookCount: async (root) => {
+      return Book.countDocuments({ author: root._id });
+    },
   },
 
   Mutation: {
-    addBook: (root, args) => {
-      if (
-        books.find(
-          (b) =>
-            b.author === args.author &&
-            b.title === args.title &&
-            b.published === args.published,
-        )
-      ) {
-        throw new GraphQLError(
-          `Book already exists on the server: ${args.title}, ${args.author}, ${args.published}`,
-          {
+    addBook: async (root, args) => {
+      let author = await Author.findOne({ name: args.author });
+
+      if (author) {
+        const bookExists = await Book.exists({
+          author: author._id,
+          title: args.title,
+          published: args.published,
+        });
+
+        if (bookExists) {
+          throw new GraphQLError(
+            `Book already exists on the server: ${args.title}, ${args.author}, ${args.published}`,
+            {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                invalidArgs: [args.title, args.author, args.published],
+              },
+            },
+          );
+        }
+      }
+
+      if (!author) {
+        author = new Author({ name: args.author });
+
+        try {
+          await author.save();
+        } catch (error) {
+          throw new GraphQLError(`Saving author failed: ${error.message}`, {
             extensions: {
               code: 'BAD_USER_INPUT',
-              invalidArgs: [args.title, args.author, args.published],
+              invalidArgs: args.author,
+              error,
             },
+          });
+        }
+      }
+
+      const book = new Book({ ...args, author: author._id });
+
+      try {
+        await book.save();
+      } catch (error) {
+        throw new GraphQLError(`Saving book failed: ${error.message}`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: [args.title, args.author, args.published],
+            error,
           },
-        );
+        });
       }
 
-      if (!authors.find((a) => a.name === args.author)) {
-        authors = authors.concat({ name: args.author, id: uuid() });
-      }
-
-      const book = { ...args, id: uuid() };
-      books = books.concat(book);
-      return book;
+      // Populate author before returning so the mutation response includes author details
+      return book.populate('author');
     },
-    editAuthor: (root, args) => {
-      const author = authors.find((a) => a.name === args.name);
 
-      if (!author) return null;
+    editAuthor: async (root, args) => {
+      const author = await Author.findOne({ name: args.name });
 
-      const updatedAuthor = {
-        ...author,
-        born: args.setBornTo,
-      };
+      if (!author) {
+        return null;
+      }
 
-      authors = authors.map((a) => (a.name === args.name ? updatedAuthor : a));
+      author.born = args.setBornTo;
 
-      return updatedAuthor;
+      try {
+        await author.save();
+      } catch (error) {
+        throw new GraphQLError(`Updating author failed: ${error.message}`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            error,
+          },
+        });
+      }
+
+      return author;
     },
   },
 };
