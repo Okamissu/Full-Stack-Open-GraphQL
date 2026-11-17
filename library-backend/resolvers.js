@@ -8,8 +8,23 @@ const resolvers = {
     bookCount: async () => Book.countDocuments(),
     authorCount: async () => Author.countDocuments(),
     allBooks: async (root, args) => {
-      // .populate('author') ensures GraphQL can resolve book.author.name
-      return Book.find({}).populate('author');
+      const filter = {};
+
+      if (args.genre) {
+        filter.genres = args.genre;
+      }
+
+      if (args.author) {
+        const author = await Author.findOne({ name: args.author });
+
+        if (!author) {
+          return [];
+        }
+
+        filter.author = author._id;
+      }
+
+      return Book.find(filter).populate('author');
     },
     allAuthors: async () => Author.find({}),
   },
