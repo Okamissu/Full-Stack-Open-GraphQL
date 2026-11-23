@@ -3,6 +3,7 @@ import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
 import Notification from './components/Notification';
+import LoginForm from './components/LoginForm';
 import { useApolloClient } from '@apollo/client/react';
 
 const App = () => {
