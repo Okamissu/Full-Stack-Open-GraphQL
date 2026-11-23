@@ -4,7 +4,9 @@ import Books from './components/Books';
 import NewBook from './components/NewBook';
 import Notification from './components/Notification';
 import LoginForm from './components/LoginForm';
-import { useApolloClient } from '@apollo/client/react';
+import { useApolloClient, useQuery } from '@apollo/client/react';
+import Recommendations from './components/Recommendations';
+import { ME } from './queries';
 
 const App = () => {
   const [page, setPage] = useState('authors');
@@ -19,12 +21,18 @@ const App = () => {
     client.resetStore();
   };
 
+  const { data: userData } = useQuery(ME, {
+    skip: !token,
+    fetchPolicy: 'network-only',
+  });
+
   return (
     <div>
       <nav>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         {token && <button onClick={() => setPage('add')}>add book</button>}
+        {token && <button onClick={() => setPage('recommendations')}>recommend</button>}
         {token && <button onClick={onLogout}>logout</button>}
         {!token && <button onClick={() => setPage('login')}>login</button>}
       </nav>
@@ -45,6 +53,14 @@ const App = () => {
         token={token}
       />
       <Books show={page === 'books'} setNotification={setNotification} />
+
+      {token && (
+        <Recommendations
+          show={page === 'recommendations'}
+          setNotification={setNotification}
+          genre={userData?.me?.favoriteGenre}
+        />
+      )}
 
       {token && <NewBook show={page === 'add'} setNotification={setNotification} />}
     </div>
