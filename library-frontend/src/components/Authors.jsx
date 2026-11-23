@@ -55,7 +55,7 @@ const BirthYearForm = ({ authors, setNotification }) => {
   );
 };
 
-const Authors = ({ setNotification, show }) => {
+const Authors = ({ setNotification, show, token }) => {
   const { loading, data, error } = useQuery(ALL_AUTHORS);
 
   useEffect(() => {
@@ -88,8 +88,12 @@ const Authors = ({ setNotification, show }) => {
         </tbody>
       </table>
 
-      <h3>set birthyear</h3>
-      <BirthYearForm authors={authors} setNotification={setNotification} />
+      {token && (
+        <>
+          <h3>set birthyear</h3>
+          <BirthYearForm authors={authors} setNotification={setNotification} />
+        </>
+      )}
     </div>
   );
 };

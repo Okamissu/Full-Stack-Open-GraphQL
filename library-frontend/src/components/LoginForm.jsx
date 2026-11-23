@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { useState } from 'react';
 import { LOGIN } from '../queries';
 
-const LoginForm = ({ setNotification, setToken }) => {
+const LoginForm = ({ setNotification, setToken, show, setPage }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -11,6 +11,7 @@ const LoginForm = ({ setNotification, setToken }) => {
       const token = data.login.value;
       setToken(token);
       localStorage.setItem('library-user-token', token);
+      setPage('authors');
     },
     onError: (error) => setNotification(error.message),
   });
@@ -24,6 +25,8 @@ const LoginForm = ({ setNotification, setToken }) => {
       },
     });
   };
+
+  if (!show) return null;
 
   return (
     <div>
