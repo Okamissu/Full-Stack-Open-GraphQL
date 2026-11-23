@@ -23,7 +23,9 @@ const Books = ({ setNotification, show }) => {
 
   useEffect(() => {
     if (booksError || genresError) {
-      setNotification(booksError.message + ' ' + genresError.message);
+      setNotification(
+        booksError?.message || genresError?.message || 'Something went wrong',
+      );
     }
   }, [booksError, genresError, setNotification]);
 
@@ -41,6 +43,13 @@ const Books = ({ setNotification, show }) => {
   return (
     <div>
       <h2>books</h2>
+
+      {genre && (
+        <p>
+          in genre <b>{genre}</b>
+        </p>
+      )}
+
       <table>
         <tbody>
           <tr>

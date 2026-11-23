@@ -31,8 +31,10 @@ const Recommendations = ({ setNotification, show, genre }) => {
 
   return (
     <div>
-      <h2>Recommendations</h2>
-      <p>books in your favorite genre: {genre}</p>
+      <h2>recommendations</h2>
+      <p>
+        books in your favorite genre: <b>{genre}</b>
+      </p>
       <table>
         <tbody>
           <tr>

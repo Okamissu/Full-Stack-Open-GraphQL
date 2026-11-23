@@ -13,7 +13,7 @@ const LoginForm = ({ setNotification, setToken, show, setPage }) => {
       localStorage.setItem('library-user-token', token);
       setPage('authors');
     },
-    onError: (error) => setNotification(error.message),
+    onError: (error) => setNotification(`Login failed: ${error.message}`),
   });
 
   const handleSubmit = (event) => {
@@ -31,18 +31,18 @@ const LoginForm = ({ setNotification, setToken, show, setPage }) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div>
-          Username{' '}
+        <label>
+          username
           <input value={username} onChange={({ target }) => setUsername(target.value)} />
-        </div>
-        <div>
-          Password{' '}
+        </label>
+        <label>
+          password
           <input
             type="password"
             value={password}
             onChange={({ target }) => setPassword(target.value)}
           />
-        </div>
+        </label>
         <button type="submit">login</button>
       </form>
     </div>
