@@ -1,25 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { ALL_BOOKS } from '../queries';
+import { ALL_BOOKS, ALL_GENRES } from '../queries';
 
 const Books = ({ setNotification, show }) => {
-  const { loading, data, error } = useQuery(ALL_BOOKS);
+  const [genre, setGenre] = useState('');
+
+  const {
+    loading: booksLoading,
+    data: booksData,
+    error: booksError,
+  } = useQuery(ALL_BOOKS, {
+    variables: {
+      genre: genre,
+    },
+  });
+
+  const {
+    loading: genresLoading,
+    data: genresData,
+    error: genresError,
+  } = useQuery(ALL_GENRES);
 
   useEffect(() => {
-    if (error) {
-      setNotification(error.message);
+    if (booksError || genresError) {
+      setNotification(booksError.message + ' ' + genresError.message);
     }
-  }, [error, setNotification]);
+  }, [booksError, genresError, setNotification]);
 
   if (!show) {
     return null;
   }
 
-  if (loading) return <div>loading...</div>;
+  if (booksLoading || genresLoading) return <div>loading...</div>;
 
-  if (error) return null;
+  if (booksError || genresError) return null;
 
-  const books = data.allBooks;
+  const books = booksData.allBooks;
+  const genres = genresData.allGenres;
 
   return (
     <div>
@@ -40,6 +57,14 @@ const Books = ({ setNotification, show }) => {
           ))}
         </tbody>
       </table>
+      <div>
+        {genres.map((genre) => (
+          <button key={genre} onClick={() => setGenre(genre)}>
+            {genre}
+          </button>
+        ))}
+        <button onClick={() => setGenre('')}>all genres</button>
+      </div>
     </div>
   );
 };
