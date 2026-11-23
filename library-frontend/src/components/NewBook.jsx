@@ -10,7 +10,7 @@ const NewBook = ({ setNotification, show }) => {
   const [genres, setGenres] = useState([]);
 
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }],
+    refetchQueries: 'active',
     onError: (error) => {
       setNotification(error.message);
     },
@@ -19,7 +19,9 @@ const NewBook = ({ setNotification, show }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    addBook({ variables: { title, published: parseInt(published), author, genres } });
+    await addBook({
+      variables: { title, published: parseInt(published), author, genres },
+    });
 
     setTitle('');
     setPublished('');
