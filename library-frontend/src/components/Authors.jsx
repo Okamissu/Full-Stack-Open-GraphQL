@@ -34,10 +34,13 @@ const BirthYearForm = ({ authors, setNotification }) => {
     >
       <label>
         name{' '}
-        <select value={name} onChange={({ target }) => setName(target.value)}>
-          {authors.map((a) => (
-            <option key={a.id} value={a.name}>
-              {a.name}
+        <select name="name" value={name} onChange={({ target }) => setName(target.value)}>
+          <option value="" disabled>
+            select author
+          </option>
+          {authors.map((author) => (
+            <option key={author.id} value={author.name}>
+              {author.name}
             </option>
           ))}
         </select>
