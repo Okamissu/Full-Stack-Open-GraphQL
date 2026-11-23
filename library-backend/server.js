@@ -9,7 +9,7 @@ const User = require('./models/user');
 const getUserFromAuthHeader = async (auth) => {
   if (!auth || !auth.startsWith('Bearer ')) return null;
 
-  const decodedToken = jwt.decode(auth.substing(7), process.env.JWT_SECRET);
+  const decodedToken = jwt.decode(auth.substring(7), process.env.JWT_SECRET);
   return User.findById(decodedToken.id);
 };
 
