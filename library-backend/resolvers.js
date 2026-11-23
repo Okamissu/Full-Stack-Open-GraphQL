@@ -156,9 +156,11 @@ const resolvers = {
         await user.save();
       } catch (error) {
         throw new GraphQLError(`Creating user failed: ${error.message}`, {
-          extensions: 'BAD_USER_INPUT',
-          invalidArgs: args.username,
-          error,
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.username,
+            error,
+          },
         });
       }
 
