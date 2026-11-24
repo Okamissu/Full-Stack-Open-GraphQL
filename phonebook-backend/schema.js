@@ -40,6 +40,10 @@ const typeDefs = /* GraphQL */ `
     login(username: String!, password: String!): Token
     addAsFriends(name: String!): User
   }
+
+  type Subscription {
+    personAdded: Person!
+  }
 `;
 
 module.exports = typeDefs;
