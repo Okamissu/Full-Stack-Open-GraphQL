@@ -40,10 +40,6 @@ const typeDefs = /* GraphQL */ `
     login(username: String!, password: String!): Token
     _resetDatabase: Boolean
   }
-
-  type Subscription {
-    personAdded: Person!
-  }
 `;
 
 module.exports = typeDefs;
