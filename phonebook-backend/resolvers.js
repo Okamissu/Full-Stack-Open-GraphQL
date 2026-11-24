@@ -162,7 +162,7 @@ const resolvers = {
       return currentUser;
     },
   },
-  Subscribtion: {
+  Subscription: {
     personAdded: {
       subscribe: () => pubsub.asyncIterableIterator('PERSON_ADDED'),
     },
